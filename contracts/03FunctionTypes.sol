@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+// 关键词顺序: 数据类型 => 存储类型 => 可见性 => 权限 
+
 /*
 格式: 
 function <function name> (<parameter types>) {internal|external|public|private} [pure|view|payable] [returns (<return types>)]

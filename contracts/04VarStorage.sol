@@ -5,9 +5,9 @@ pragma solidity ^0.8.9;
 1. 数据位置(只针对引用类型: 数组, struct, mapping等)
 solidity数据存储位置有三类：storage，memory和calldata。不同存储位置的gas成本不同。storage类型的数据存在链上，类似计算机的硬盘，消耗gas多；memory和calldata类型的临时存在内存里，消耗gas少。大致用法：
 
-    storage：合约里的状态变量默认都是storage，存储在链上。
+    storage：合约里的状态变量默认都是storage，存储在链上。可以在状态变量和局部变量使用, 因为状态变量必须storage, 所以状态变量默认storage并且禁止手动声明storage。
 
-    memory：函数里的形参和临时/局部变量默认用memory，存储在内存中，不上链。
+    memory：函数里的形参和临时/局部变量默认用memory，存储在内存中，不上链。只能在局部变量使用。
 
     calldata：和memory类似，存储在内存中，不上链。与memory的不同点在于calldata变量不能修改（immutable），一般用于函数中不能修改的参数, 引用类型的常量。
 
@@ -16,6 +16,8 @@ solidity数据存储位置有三类：storage，memory和calldata。不同存储
 相同类型的不同存储类型的数据是可以相互赋值的
 相同类型的数据相互赋值, 其实就是把引用赋值, 修改其中一个另一个也会变化
 不同类型的数据相互赋值, 其实就是用数据部分创建了一个目标存储类型的副本, 然后赋值副本, 修改其中一个另一个不会变化
+
+3. 如果返回值的类型是引用类型也需要指明存储类型
 */
 
 contract VarStorage{
