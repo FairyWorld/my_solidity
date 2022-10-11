@@ -78,4 +78,12 @@ contract FunctionTypes {
         return (value1, boo);
     }
 
+
+    function f(uint256[] calldata a) external pure returns(uint256[] calldata){
+        // a = 10;
+        // uint256[] calldata b;
+        // b[1] = 10;
+        return a;
+    }
+
 }
