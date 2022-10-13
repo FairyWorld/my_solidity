@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-// 关键词顺序: 数据类型 => 存储类型 => 可见性 => 权限 
+// 关键词顺序: 
+// 函数: 可见性 => 权限 => modifier装饰器 => 返回值returns(xx)
+// 变量: 数据类型 => 存储类型(引用类型才需要, storage, memory和calldata) => 可见性 => 常量关键词(constant, immutable)
+
 
 /*
 格式: 
