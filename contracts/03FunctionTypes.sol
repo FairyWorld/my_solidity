@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-// 关键词顺序: 
-// 函数: 可见性 => 权限 => modifier装饰器 => 返回值returns(xx)
+// 关键词顺序:
+// 函数: 可见性 => 权限 => modifier装饰器 => virtual和override => 返回值returns(xx)
+//      - 可见性 => 权限 => modifier装饰器 => virtual和override并没有书写顺序之分, 只是建议按照这个熟悉
 // 变量: 数据类型 => 存储类型(引用类型才需要, storage, memory和calldata) => 可见性 => 常量关键词(constant, immutable)
 
+/*
+需要写权限的情况:
+1. 修改了状态变量, 包括调用第三方合约修改修改第三方合约的状态, struct, array, mapping的修改或者调用api修改(push, pop)
+2. 函数或装饰器使用了emit发射事件
+3. 函数的modifier装饰器对上述情况的修改
+*/
 
 /*
 格式: 
@@ -23,7 +30,7 @@ private: 只能从本合约内部访问，继承的合约也不能用（也可�
 external: 只能从合约外部访问（但是可以用this.f()来调用，f是函数名）
 internal: 只能从合约内部访问，继承的合约可以用（也可用于修饰状态变量）。
 
-[pure|view|payable]：
+[pure|view|payable|nonpayable]：
 决定函数权限/功能的关键字。
 权限关键字是对当前函数的限制, 和函数内部调用的其他函数无关, 即pure内部可以调用具有view权限的函数。
     - 如果是调用其他合约的函数需要注意的是
@@ -39,32 +46,37 @@ contract FunctionTypes {
     uint256 public number = 0;
 
     // pure: 不能读取内部变量/函数
-    function addPure(uint256 _number) external pure returns(uint256 new_number){
-        new_number = _number+1;
+    function addPure(uint256 _number)
+        external
+        pure
+        virtual
+        returns (uint256 new_number)
+    {
+        new_number = _number + 1;
     }
 
     // view: 只能读取不能修改内部变量/函数
-    function addView() external view returns(uint256 new_number){
+    function addView() external view returns (uint256 new_number) {
         new_number = number + 1;
     }
 
     // 默认, internal以及非pure非view非payable(需要gas), 如果每次指明类型就是internal, 但是会有警告。
     // 可以returns查看或者执行number()
-    function addInternal() internal{
+    function addInternal() internal {
         number = number + 1;
     }
 
     // 为了方便调试, 要么手动改为addInternal为external, 要么间接调用addInternal这个internal方法
     // 不能隐式返回, 例如下面我想返回内部的number, 不能改为returns(uint256 number), 而不进行赋值
-    function addExternal() external returns(uint256 new_number){
+    function addExternal() external returns (uint256 new_number) {
         addInternal();
         new_number = number;
     }
 
     // payable: 是指可以给合约打钱的函数.
     // 和默认值(非pure非view非payable)不同, 默认值是指消耗汽油, 钱是给矿工和以太坊的, 所以不能打钱(这只value)。
-    // payable是在默认值的基础上支持执行函数打钱到合约(设置value), 可以为0 
-    function addPayable() external payable returns(uint256 balance){
+    // payable是在默认值的基础上支持执行函数打钱到合约(设置value), 可以为0
+    function addPayable() external payable returns (uint256 balance) {
         balance = address(this).balance;
     }
 
@@ -77,23 +89,33 @@ contract FunctionTypes {
         - 如果没有使用return关键字(优先级高)显示返回, 那么自动把函数的同名局部变量返回
     returns如果只指定类型, 那么必须使用return返回
     returns如果有多个返回值可以使用解构赋值, (, b, c, ) = fn(), 顺序和个数必须一致, 不需要获取的用空格代替逗号保留
-    */ 
+    */
 
-    function fnReturn() external pure returns(uint256, uint256, bool boo){
+    function fnReturn()
+        external
+        pure
+        returns (
+            uint256,
+            uint256,
+            bool boo
+        )
+    {
         return (111, 222, true);
     }
 
-    function fnReturn2() external view returns(uint256, bool){
-        (uint256 value1, ,bool boo) = this.fnReturn();
+    function fnReturn2() external view returns (uint256, bool) {
+        (uint256 value1, , bool boo) = this.fnReturn();
         return (value1, boo);
     }
 
-
-    function f(uint256[] calldata a) external pure returns(uint256[] calldata){
+    function f(uint256[] calldata a)
+        external
+        pure
+        returns (uint256[] calldata)
+    {
         // a = 10;
         // uint256[] calldata b;
         // b[1] = 10;
         return a;
     }
-
 }
